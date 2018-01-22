@@ -43,10 +43,9 @@ feature_cate_temp = pd.get_dummies(train_data[cate_list],prefix=cate_list,column
 #---------------------------构造特征准备数据------------------------------------#
 #category原始数据drop，concat one-hot之后的数据
 feature_temp1 = pd.concat((train_data.drop(cate_list,axis=1),feature_cate_temp),axis=1)
-
 #class_id按照3年总销量排序,将class_id进行映射成140-1的数（更精确考虑每年）
-class_list_temp = train_data.groupby(['class_id'],as_index=False).sum()\
-            .sort_values(by='sale_quantity', ascending=False)
+class_list_temp = train_data.groupby(['class_id'],as_index=False)['sale_quantity']\
+                           .sum().sort_values(by='sale_quantity', ascending=False)
 class_list = pd.DataFrame(class_list_temp.loc[:,'class_id'])
 class_list['class_trans'] = np.arange(140,0,-1)
 feature_temp2 = pd.merge(feature_temp1, class_list).drop('class_id',1)
@@ -107,6 +106,12 @@ feature_record_num.columns = 'record_num'
 #选特征concat
 features = pd.concat(。。。。。。)
 
+#最后要把 class_trans, year_delta, month 从标签里取出来作为特征
 
+#test数据映射
+test_trans = pd.merge(test_data,class_list,on='class_id')
+test_trans['year_delta'] = [6]*140
+test_trans['month'] = [11]*140
+test = test_trans[['class_trans','year_delta','month']]
 #其它：还可按照销量构造某特征在各个取值的重要性特征
 #      构造一条记录里某特征出现了几个取值特征
